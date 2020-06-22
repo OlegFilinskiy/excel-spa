@@ -13,7 +13,8 @@
     "linebreak-style": "off",
     "no-console": "off",
     "quotes": "off",
-    "operator-linebreak": "off"
+    "operator-linebreak": "off",
+    "no-trailing-spaces": "off"
   },
   "extends": ["eslint:recommended", "google"]
 }
