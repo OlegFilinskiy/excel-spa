@@ -7,18 +7,24 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const isProd = process.env.NODE_ENV === 'production'
 const isDev = !isProd
 
-const fileName = ext => isDev ? `bundle.${ext}` : `bundle.[hash].${ext}`
+const filename = ext => isDev ? `bundle.${ext}` : `bundle.[hash].${ext}`
 
 const jsLoaders = () => {
   const loaders = [
     {
-      loader: 'babel-loader'
+      loader: 'babel-loader',
+      options: {
+        presets: ['@babel/preset-env'],
+        plugins: ['@babel/plugin-proposal-class-properties']
+      }
     }
   ]
 
   if (isDev) {
     loaders.push('eslint-loader')
   }
+
+  return loaders
 }
 
 module.exports = {
@@ -26,7 +32,7 @@ module.exports = {
   mode: 'development',
   entry: ['@babel/polyfill', './index.js'],
   output: {
-    filename: fileName('js'),
+    filename: filename('js'),
     path: path.resolve(__dirname, 'dist')
   },
   resolve: {
@@ -42,7 +48,6 @@ module.exports = {
     hot: isDev
   },
   plugins: [
-    // For cleaning dist folder from old files
     new CleanWebpackPlugin(),
     new HTMLWebpackPlugin({
       template: 'index.html',
@@ -58,7 +63,7 @@ module.exports = {
       }
     ]),
     new MiniCssExtractPlugin({
-      filename: fileName('css')
+      filename: filename('css')
     })
   ],
   module: {
@@ -66,7 +71,6 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Minimize CSS
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
@@ -74,17 +78,15 @@ module.exports = {
               reloadAll: true
             }
           },
-          // Translates CSS into CommonJS
           'css-loader',
-          // Compiles Sass to CSS
           'sass-loader'
         ],
       },
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: jsLoaders(),
+        use: jsLoaders()
       }
-    ],
-  },
+    ]
+  }
 }
